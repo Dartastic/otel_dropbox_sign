@@ -1,15 +1,16 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_dropbox_sign_suppression.dart';
 
 const _tracerName = 'dartastic_otel_libs_dropbox_sign';
 
-Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
+APITracer _tracer() => OTelAPI.tracerProvider().getTracer(_tracerName);
 
 class DropboxSignResult {
+  /// Creates a result.
   const DropboxSignResult({
     this.itemCount,
     this.numPages,
@@ -64,8 +65,13 @@ class DropboxSignResult {
   final int? statusCode;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class DropboxSignCallResult<T> {
+  /// Creates a call result.
   const DropboxSignCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final DropboxSignResult? result;
 }
@@ -95,62 +101,62 @@ Future<T> tracedDropboxSign<T>({
   final span = _tracer().startSpan(
     'dropbox_sign $operation',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     final r = await invoke();
     if (r.result != null) {
       final extras = <Attribute<Object>>[];
       if (r.result!.itemCount != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'dropbox_sign.item_count',
           r.result!.itemCount!,
         ));
       }
       if (r.result!.numPages != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'dropbox_sign.num_pages',
           r.result!.numPages!,
         ));
       }
       if (r.result!.signatureRequestId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'dropbox_sign.signature_request.id',
           r.result!.signatureRequestId!,
         ));
       }
       if (r.result!.testMode != null) {
-        extras.add(OTel.attributeBool(
+        extras.add(OTelAPI.attributeBool(
           'dropbox_sign.test_mode',
           r.result!.testMode!,
         ));
       }
       if (r.result!.embedded != null) {
-        extras.add(OTel.attributeBool(
+        extras.add(OTelAPI.attributeBool(
           'dropbox_sign.embedded',
           r.result!.embedded!,
         ));
       }
       if (r.result!.signerCount != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'dropbox_sign.signer_count',
           r.result!.signerCount!,
         ));
       }
       if (r.result!.signedCount != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'dropbox_sign.signed_count',
           r.result!.signedCount!,
         ));
       }
       if (r.result!.complete != null) {
-        extras.add(OTel.attributeBool(
+        extras.add(OTelAPI.attributeBool(
           'dropbox_sign.complete',
           r.result!.complete!,
         ));
       }
       if (r.result!.declined != null) {
-        extras.add(OTel.attributeBool(
+        extras.add(OTelAPI.attributeBool(
           'dropbox_sign.declined',
           r.result!.declined!,
         ));
@@ -162,19 +168,19 @@ Future<T> tracedDropboxSign<T>({
         }
       }
       if (r.result!.qualifiedSignature != null) {
-        extras.add(OTel.attributeBool(
+        extras.add(OTelAPI.attributeBool(
           'dropbox_sign.qualified_signature',
           r.result!.qualifiedSignature!,
         ));
       }
       if (r.result!.requestId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'dropbox_sign.request.id',
           r.result!.requestId!,
         ));
       }
       if (r.result!.statusCode != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'http.response.status_code',
           r.result!.statusCode!,
         ));
@@ -185,13 +191,13 @@ Future<T> tracedDropboxSign<T>({
           );
         }
       }
-      if (extras.isNotEmpty) span.addAttributes(OTel.attributes(extras));
+      if (extras.isNotEmpty) span.addAttributes(OTelAPI.attributes(extras));
     }
     return r.value;
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
